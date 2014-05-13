@@ -1,5 +1,5 @@
-pub trait Component {
-    fn component_id(&self)-> uint;
-}
+pub struct Sigl<T>;
 
-fn main(){}
+pub trait Component {
+    fn id(s: Sigl<Self>)-> uint;
+}

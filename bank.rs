@@ -7,7 +7,10 @@ pub struct Bank<C> {
 }
 
 impl <C: Component> Bank<C> {
-    fn add(&mut self, c: C) -> uint {
+    pub fn new() -> Bank<C> {
+        Bank { components: Vec::new(), holes: Vec::new() }
+    }
+    pub fn add(&mut self, c: C) -> uint {
         let mut pos:uint = 0;
         if self.holes.is_empty() {
             pos = self.holes.pop().unwrap();
@@ -20,7 +23,7 @@ impl <C: Component> Bank<C> {
         pos
     }
 
-    fn del(&mut self, pos: uint) {
+    pub fn del(&mut self, pos: uint) {
         self.holes.push(pos);
     }
 }
