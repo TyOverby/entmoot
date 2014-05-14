@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 pub struct Sigl<T>;
 
 pub trait Component {
