@@ -15,7 +15,6 @@ use entity::Entity;
 mod component;
 mod bank;
 mod entity;
-mod aspect;
 
 struct World {
     banks: Vec<Box<Any>>,
@@ -34,7 +33,7 @@ impl World {
     pub fn register_component<C: Component + 'static>(&mut self) {
         let id = Component::id(Sigl::<C>);
         assert!(self.banks.len() == id,
-        "Components must be registered in ascending order.");
+        "Components must be registered in ascending order with no duplicates.");
         let any: Box<Any> = box Bank::<C>::new();
         self.banks.push(any);
         self.component_count += 1;
@@ -64,7 +63,7 @@ impl World {
             *inject = pos;
         }
         {
-            entity.aspect.add_key(component_id);
+            entity.aspect().insert(component_id);
         }
     }
 
@@ -82,7 +81,9 @@ impl World {
     pub fn unmap_component<C: Component + 'static>(&mut self, entity: &mut Entity) {
         let (id, bank) = self.get_bank::<C>();
         bank.del(entity.id());
-        entity.aspect().del_key(id);
+        entity.aspect().remove(&id);
+        let ptr = entity.offsets().get_mut(id);
+        *ptr = std::uint::MAX;
     }
 }
 
@@ -93,23 +94,94 @@ mod world_tests {
     use component::Component;
     use component::Sigl;
 
+    struct Pos {
+        x: uint, y: uint
+    }
+    impl Component for Pos {
+        fn id(_: Sigl<Pos>) -> uint { 0 }
+    }
+
+    struct Vel {
+        x: uint, y: uint
+    }
+    impl Component for Vel {
+        fn id(_: Sigl<Vel>) -> uint { 1 }
+    }
+
     #[test]
     fn test_component_map() {
-        struct Pos {
-            x: uint, y: uint
-        }
-        impl Component for Pos {
-            fn id(_: Sigl<Pos>) -> uint {0}
-        }
         let mut world = World::new();
         world.register_component::<Pos>();
+        world.register_component::<Vel>();
 
         let mut e1 = world.spawn();
-        world.map_component(Pos {x: 0, y: 5}, &mut e1);
-        let c1 = world.get_component::<Pos>(&mut e1);
-        assert!(c1.is_some());
-        let c1 = c1.unwrap();
-        assert!(c1.x == 0);
-        assert!(c1.y == 5);
+
+        {
+            world.map_component(Pos {x: 0, y: 5}, &mut e1);
+            let c1 = world.get_component::<Pos>(&mut e1);
+            assert!(c1.is_some());
+            let c1 = c1.unwrap();
+            assert!(c1.x == 0);
+            assert!(c1.y == 5);
+        } {
+            world.map_component(Vel {x: 3, y: 3}, &mut e1);
+            let c2 = world.get_component::<Vel>(&mut e1);
+            assert!(c2.is_some());
+            let c2 = c2.unwrap();
+            assert!(c2.x == 3);
+            assert!(c2.y == 3);
+        }
+    }
+
+    #[test]
+    fn test_component_remove() {
+        let mut world = World::new();
+        world.register_component::<Pos>();
+        world.register_component::<Vel>();
+
+        let mut e1 = world.spawn();
+
+        {
+            world.map_component(Pos {x: 4, y: 4}, &mut e1);
+            let c1 = world.get_component::<Pos>(&mut e1);
+            assert!(c1.is_some());
+            let c1 = c1.unwrap();
+            assert!(c1.x == 4);
+            assert!(c1.y == 4);
+        } {
+            world.unmap_component::<Pos>(&mut e1);
+            let c1 = world.get_component::<Pos>(&mut e1);
+            assert!(c1.is_none());
+        }
+    }
+
+    #[test]
+    fn test_component_update() {
+        let mut world = World::new();
+        world.register_component::<Pos>();
+        world.register_component::<Vel>();
+
+        let mut e1 = world.spawn();
+
+        {
+            world.map_component(Pos {x: 4, y: 4}, &mut e1);
+            let c1 = world.get_component::<Pos>(&mut e1);
+            assert!(c1.is_some());
+            let c1 = c1.unwrap();
+            assert!(c1.x == 4);
+            assert!(c1.y == 4);
+
+            *c1 = Pos {x: 0, y: 0};
+            assert!(c1.x == 0);
+            assert!(c1.y == 0);
+        }
+        {
+            let c1 = world.get_component::<Pos>(&mut e1);
+            assert!(c1.is_some());
+            let c1 = c1.unwrap();
+            assert!(c1.x == 0);
+            assert!(c1.y == 0);
+        }
+
     }
 }
