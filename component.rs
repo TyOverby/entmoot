@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-pub struct Sigl<T>;
+use sigl::Sigl;
 
 pub trait Component {
     fn id(s: Sigl<Self>)-> uint;

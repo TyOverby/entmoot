@@ -1,6 +1,5 @@
 #![allow(dead_code)]
 use component::Component;
-mod component;
 
 pub struct Bank<C> {
     components: Vec<C>,
@@ -33,5 +32,3 @@ impl <C: Component> Bank<C> {
         self.components.get_mut(pos)
     }
 }
-
-fn main() {}

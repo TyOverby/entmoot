@@ -8,13 +8,14 @@ use std::any::AnyMutRefExt;
 use std::any::AnyRefExt;
 
 use component::Component;
-use component::Sigl;
 use bank::Bank;
 use entity::Entity;
+use sigl::Sigl;
 
 mod component;
 mod bank;
 mod entity;
+mod sigl;
 
 struct World {
     banks: Vec<Box<Any>>,
@@ -92,7 +93,7 @@ mod world_tests {
     use super::World;
     use entity::Entity;
     use component::Component;
-    use component::Sigl;
+    use sigl::Sigl;
 
     struct Pos {
         x: uint, y: uint
@@ -174,14 +175,12 @@ mod world_tests {
             *c1 = Pos {x: 0, y: 0};
             assert!(c1.x == 0);
             assert!(c1.y == 0);
-        }
-        {
+        } {
             let c1 = world.get_component::<Pos>(&mut e1);
             assert!(c1.is_some());
             let c1 = c1.unwrap();
             assert!(c1.x == 0);
             assert!(c1.y == 0);
         }
-
     }
 }
