@@ -2,5 +2,5 @@
 use sigl::Sigl;
 
 pub trait Component {
-    fn id(s: Sigl<Self>)-> uint;
+    fn component_id(s: Sigl<Self>)-> uint;
 }
