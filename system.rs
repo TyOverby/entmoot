@@ -39,7 +39,7 @@ impl <U, S> AspectSystem<U, S> {
 impl <U, S: AspectSystemState<U>> AspectSystem<U, S> {
     pub fn new(aspect: BitvSet, state: S)-> AspectSystem<U, S> {
         AspectSystem {
-            aspect: BitvSet::new(),
+            aspect: aspect,
             entities: Vec::new(),
             state: state
         }

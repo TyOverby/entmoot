@@ -1,5 +1,5 @@
-#![allow(dead_code)]
 #![feature(macro_rules)]
+#![feature(phase)]
 
 extern crate collections;
 extern crate core;
@@ -12,7 +12,6 @@ use std::cell::RefCell;
 use std::cell::Ref;
 use std::cell::RefMut;
 use std::rc::Rc;
-use std::cast::transmute;
 
 use component::Component;
 use bank::Bank;
@@ -233,11 +232,11 @@ impl Entity {
         self.systems.borrow_mut()
     }
 
-    fn has_component(&self, id: uint) -> bool {
+    pub fn has_component(&self, id: uint) -> bool {
         self.aspect.borrow().contains(&id)
     }
 
-    fn in_system(&self, id: uint) -> bool {
+    pub fn in_system(&self, id: uint) -> bool {
         self.systems.borrow().contains(&id)
     }
 
